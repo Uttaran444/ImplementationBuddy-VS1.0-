@@ -5,7 +5,7 @@ import { URL } from 'url';
 import { ConfidentialClientApplication } from '@azure/msal-node';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 
-const TENANT_ID = '27a4ed1d-793a-4844-99db-0021f00e4a97';
+const TENANT_ID = process.env.TENANT_ID;
 const MCP_API_CLIENT_ID = process.env.MCP_API_CLIENT_ID || '';
 const MCP_API_CLIENT_SECRET = process.env.MCP_API_CLIENT_SECRET || '';
 const ADO_SCOPE = ['499b84ac-1321-427f-aa17-267ca6975798/.default'];
@@ -891,6 +891,7 @@ export const getServer = (): McpServer => {
   );
   return server;
 };
+
 
 
 
