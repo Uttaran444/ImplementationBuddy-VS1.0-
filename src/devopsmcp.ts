@@ -462,7 +462,7 @@ export const getServer = (): McpServer => {
           }
           if (typeof val === 'object') {
             // check common date-like props first
-            for (const p of ['date', 'value', 'dueDate', 'completedDate', 'createdDate', 'closedDate']) {
+            for (const p of ['date', 'value', 'dueDate', 'completedDate', 'createdDate', 'closedDate','startDate','expectedFinishDate','endDate','Completiondate']) {
               if (val[p]) {
                 const r = parseDateFromValue(val[p], depth + 1);
                 if (r) return r;
@@ -481,7 +481,7 @@ export const getServer = (): McpServer => {
         function getDateFromFields(fields: Record<string, any>): Date | null {
           if (!fields) return null;
           // Prefer explicit system dates first
-          const sysKeys = ['System.ChangedDate', 'System.CreatedDate', 'System.ClosedDate', 'Microsoft.VSTS.Common.ClosedDate'];
+          const sysKeys = ['System.ChangedDate', 'System.CreatedDate', 'System.ClosedDate', 'Microsoft.VSTS.Common.ClosedDate','Custom.BaselineStartdate','Custom.Expectedfinishdate'];
           for (const k of sysKeys) {
             if (fields[k]) {
               const d = parseDateFromValue(fields[k]);
@@ -489,7 +489,7 @@ export const getServer = (): McpServer => {
             }
           }
 
-          // Look for keys that contain 'target', 'due', 'date', 'completed', or 'closed'
+          // Look for keys that contain 'target', 'due', 'date', 'completed', or 'closed','start','expectedfinish','dueDate'
           const candidates = Object.keys(fields).filter(k => /due|target|date|completed|closed/i.test(k));
           for (const k of candidates) {
             const d = parseDateFromValue(fields[k]);
@@ -512,7 +512,7 @@ export const getServer = (): McpServer => {
         }
 
         // Allow customizing which fields count as the "target/due" date via env var
-        const targetDateFieldCandidates: string[] = (process.env.AZDO_TARGET_DATE_FIELDS || 'Target Date,dueDate,Due Date,TargetDate,Microsoft.VSTS.Scheduling.DueDate,Custom.TargetDate').split(',').map(s => s.trim()).filter(Boolean);
+        const targetDateFieldCandidates: string[] = (process.env.AZDO_TARGET_DATE_FIELDS || 'Target Date,dueDate,Due Date,TargetDate,Microsoft.VSTS.Scheduling.DueDate,Custom.TargetDate,Custom.BaselineStartdate,Custom.Expectedfinishdate').split(',').map(s => s.trim()).filter(Boolean);
 
         function getTargetDateFromFields(fields: Record<string, any>): Date | null {
           if (!fields) return null;
@@ -891,6 +891,7 @@ export const getServer = (): McpServer => {
   );
   return server;
 };
+
 
 
 
