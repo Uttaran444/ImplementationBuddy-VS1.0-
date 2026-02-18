@@ -367,11 +367,13 @@ export const getServer = (): McpServer => {
         const queryTokens = tokenize(qRaw, 2);
 
         // Compute weighted score per work item based on title and discussion token overlap
-        const scored: Array<{ id: number; title: string; state: string; score: number; excerpt: string }> = [];
+        const scored: Array<{ id: number; title: string; state: string; WorkItemType:string; score: number; excerpt: string }> = [];
         for (const wi of workItems) {
           const id = wi.id;
           const title = wi.fields?.['System.Title'] || '';
           const state = wi.fields?.['System.State'] || '';
+          const WorkItemType = wi.fields?.['System.WorkItemType'] || '';
+          
           const discussionRaw = (commentsById[id] || '') + '\n' + (wi.fields?.['System.Description'] || '');
 
           const titleTokens = tokenize(title, 2);
@@ -389,7 +391,7 @@ export const getServer = (): McpServer => {
           const score = (0.6 * titleOverlap) + (0.4 * discOverlap);
 
           const excerpt = extractExcerpt(stripHtmlAndNormalize(discussionRaw), qRaw);
-          scored.push({ id, title, state, score, excerpt });
+          scored.push({ id, title, state, WorkItemType, score, excerpt });
         }
 
         if (!scored.length) {
@@ -406,7 +408,7 @@ export const getServer = (): McpServer => {
         // Build a human-readable text output and also include a structured JSON payload for downstream use
         let out = '';
         for (const m of matches) {
-          out += `MATCH -> ID: ${m.id}, Title: ${m.title}, State: ${m.state}, Score: ${(m.score * 100).toFixed(0)}%\nDiscussion excerpt:\n${m.excerpt}\n\n`;
+          out += `MATCH -> ID: ${m.id}, Title: ${m.title}, State: ${m.state}, WorkItemType: ${m.WorkItemType} ,Score: ${(m.score * 100).toFixed(0)}%\nDiscussion excerpt:\n${m.excerpt}\n\n`;
         }
 
         return { content: [{ type: 'text', text: out }], json: { query, threshold, matches } } as unknown as CallToolResult;
@@ -891,6 +893,7 @@ export const getServer = (): McpServer => {
   );
   return server;
 };
+
 
 
 
